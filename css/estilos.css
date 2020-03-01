@@ -1,0 +1,73 @@
+.tablero{
+    background-color: orange ;
+    width: 90%;
+     height: 1000px;
+    margin-left:5% ;
+
+}
+.fila1{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+    padding-top: 5%;
+}
+.fila2{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;;
+}
+.fila3{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+}
+.fila4{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+}
+.fila5{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+}
+.fila6{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+}
+.fila7{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+}
+.fila8{
+    width: 100%;
+    margin: 0%;
+    display: flex;
+    margin-left: 20%;
+}
+.casillaBlanca{
+    display: inline-block;
+    background-color: #fff;
+    width: 7%;
+    height: 100px;
+    margin: 0%;
+}
+
+.casillaNegra{  
+    display: inline-block;;
+    background-color: #000;
+    width: 7%;
+    height: 100px;
+    margin: 0%;
+    padding: 0;
+
+}
