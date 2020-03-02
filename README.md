@@ -1,2 +1,2 @@
-# ajedrez
-el ajedrez mas perron cucho
+# agario.io
+el agario.io mas perron cucho
