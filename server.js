@@ -1,70 +1,59 @@
-var blobs = [];
+var path         = require('path')
+  , http         = require('http')
+  , express      = require('express')
+  , socket       = require('socket.io')
+  , httpRoutes   = require('./routes/http')
+  , socketRoutes = require('./routes/socket')
+  , GameStore    = require('./lib/GameStore');
 
-function Blob(id, x, y, r) {
-  this.id = id;
-  this.x = x;
-  this.y = y;
-  this.r = r;
+var app    = express()
+  , server = http.createServer(app)
+  , io     = socket.listen(server);
+
+var DB = new GameStore();
+
+var cookieParser = express.cookieParser('I wish you were an oatmeal cookie')
+  , sessionStore = new express.session.MemoryStore();
+
+// Settings
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+// Middleware
+app.use(express.favicon(__dirname + '/public/img/favicon.ico'));
+app.use(express.logger('dev'));
+app.use(express.bodyParser());
+app.use(cookieParser);
+app.use(express.session({ store: sessionStore }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(app.router);
+if ('development' == app.get('env')) {
+  app.use(express.errorHandler());
 }
 
-// Using express: http://expressjs.com/
-var express = require('express');
-// Create the app
-var app = express();
-
-// Set up the server
-// process.env.PORT is related to deploying on heroku
-var server = app.listen(process.env.PORT || 3000, listen);
-
-// This call back just tells us that the server has started
-function listen() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('Example app listening at http://' + host + ':' + port);
-}
-
-app.use(express.static('public'));
-
-// WebSocket Portion
-// WebSockets work with the HTTP server
-var io = require('socket.io')(server);
-
-setInterval(heartbeat, 0.5);
-
-function heartbeat() {
-  io.sockets.emit('heartbeat', blobs);
-}
-
-// Register a callback function to run when we have an individual connection
-// This is run for each individual user that connects
-io.sockets.on(
-  'connection',
-  // We are given a websocket object in our function
-  function(socket) {
-    console.log('We have a new client: ' + socket.id);
-
-    socket.on('start', function(data) {
-      console.log(socket.id + ' ' + data.x + ' ' + data.y + ' ' + data.r);
-      var blob = new Blob(socket.id, data.x, data.y, data.r);
-      blobs.push(blob);
-  
+/*
+ * Only allow socket connections that come from clients with an established session.
+ * This requires re-purposing Express's cookieParser middleware in order to expose
+ * the session info to Socket.IO
+ */
+io.set('authorization', function (handshakeData, callback) {
+  cookieParser(handshakeData, {}, function(err) {
+    if (err) return callback(err);
+    sessionStore.load(handshakeData.signedCookies['connect.sid'], function(err, session) {
+      if (err) return callback(err);
+      handshakeData.session = session;
+      var authorized = (handshakeData.session) ? true : false;
+      callback(null, authorized);
     });
+  });
+});
 
-    socket.on('update', function(data) {
-      //console.log(socket.id + " " + data.x + " " + data.y + " " + data.r);
-      var blob;
-      for (var i = 0; i < blobs.length; i++) {
-        if (socket.id == blobs[i].id) {
-          blob = blobs[i];
-        }
-      }
-      blob.x = data.x;
-      blob.y = data.y;
-      blob.r = data.r;
-    });
+// Attach routes
+httpRoutes.attach(app, DB);
+socketRoutes.attach(io, DB);
 
-    socket.on('disconnect', function() {
-      console.log('Client has disconnected');
-    });
-  }
-);
+// And away we go
+server.listen(app.get('port'), function(){
+  console.log('Socket.IO Chess is listening on port ' + app.get('port'));
+});

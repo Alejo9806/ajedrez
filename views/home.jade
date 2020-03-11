@@ -1,0 +1,44 @@
+extends layout
+
+block content
+
+  #banner.jumbotron
+    .container
+  .title
+    h1 AJEDREZ LOS PRROS
+    
+      
+  .container
+    .row
+      .col-sm-6
+        h2 Empezar juego
+        form#startForm(action="/start", method="POST", role="form")
+          .form-group
+            label nombre del jugador
+            div
+              .btn-group(data-toggle="buttons")
+                label.btn.btn-default.active
+                  input(type="radio", name="player-color", value="white", checked="checked")
+                  | Blancas
+                label.btn.btn-default
+                  input(type="radio", name="player-color", value="black")
+                  | Negras
+          .form-group
+            label(for="playerName") nombre
+            input#playerName.form-control(type="text", name="player-name", placeholder="jugador 1")
+          button.btn.btn-primary(type="submit") Empezar Juego
+      .col-sm-6
+        div.image     
+      .col-sm-6
+        h2 Unirse a un juego existente
+        form#joinForm(action="/join", method="POST", role="form")
+          .form-group
+            label(for="gameID") codigo de la sala
+            input#gameID.form-control(type="text", name="game-id")
+          .form-group
+            label(for="playerName") Nombre
+            input#playerName.form-control(type="text", name="player-name", placeholder="jugador 2")
+          button.btn.btn-primary(type="submit") Unirse al juego
+
+  script(src="/js/jquery.min.js")
+  script(src="/js/bootstrap.min.js")
